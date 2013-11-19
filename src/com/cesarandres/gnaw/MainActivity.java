@@ -1,5 +1,7 @@
 package com.cesarandres.gnaw;
 
+import javax.sql.DataSource;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -44,7 +46,7 @@ public class MainActivity extends FragmentActivity implements
 
 		}
 
-		this.application = new GnawApplication(this);
+		this.application = new GnawApplication(null);
 		this.application.init();
 	}
 
