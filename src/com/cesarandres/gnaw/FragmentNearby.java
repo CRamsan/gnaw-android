@@ -1,5 +1,7 @@
 package com.cesarandres.gnaw;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,6 +9,16 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ListView;
+
+import com.gnaw.discovery.event.BroadcastingEndEvent;
+import com.gnaw.discovery.event.BroadcastingEndEventListener;
+import com.gnaw.discovery.event.ClientFoundEvent;
+import com.gnaw.discovery.event.ClientFoundEventListener;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass. Activities that
@@ -16,60 +28,64 @@ import android.view.ViewGroup;
  * to create an instance of this fragment.
  * 
  */
-public class FragmentNearby extends Fragment {
-	// TODO: Rename parameter arguments, choose names that match
-	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-	private static final String ARG_PARAM1 = "param1";
-	private static final String ARG_PARAM2 = "param2";
-
-	// TODO: Rename and change types of parameters
-	private String mParam1;
-	private String mParam2;
+public class FragmentNearby extends Fragment implements
+		BroadcastingEndEventListener, ClientFoundEventListener {
 
 	private OnFragmentInteractionListener mListener;
-
-	/**
-	 * Use this factory method to create a new instance of this fragment using
-	 * the provided parameters.
-	 * 
-	 * @param param1
-	 *            Parameter 1.
-	 * @param param2
-	 *            Parameter 2.
-	 * @return A new instance of fragment FragmentNearby.
-	 */
-	// TODO: Rename and change types and number of parameters
-	public static FragmentNearby newInstance(String param1, String param2) {
+	private ArrayList<String> clientsFound;
+	
+	public static FragmentNearby newInstance() {
 		FragmentNearby fragment = new FragmentNearby();
-		Bundle args = new Bundle();
-		args.putString(ARG_PARAM1, param1);
-		args.putString(ARG_PARAM2, param2);
-		fragment.setArguments(args);
 		return fragment;
 	}
 
 	public FragmentNearby() {
-		// Required empty public constructor
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (getArguments() != null) {
-			mParam1 = getArguments().getString(ARG_PARAM1);
-			mParam2 = getArguments().getString(ARG_PARAM2);
-		}
+		clientsFound = new ArrayList<String>();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_nearby, container,
-				false);
+		View view = inflater
+				.inflate(R.layout.fragment_nearby, container, false);
+
+		((CheckBox) view.findViewById(R.id.checkBox1))
+				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						if (isChecked) {
+							MainActivity.application.startBroadcasting(FragmentNearby.this, 30);
+						} else {
+							MainActivity.application.stopBroadcasting();
+						}
+					}
+				});
+
+		((CheckBox) view.findViewById(R.id.checkBox2))
+		.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (isChecked) {
+					MainActivity.application.startListening(FragmentNearby.this);
+					clientsFound.clear();
+				} else {
+					MainActivity.application.stopListening();
+				}
+			}
+		});
+		
+		((ListView)view.findViewById(R.id.listView1)).setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, clientsFound));
+		
+		return view;
 	}
 
-	// TODO: Rename method, update argument and hook method into UI event
 	public void onButtonPressed(Uri uri) {
 		if (mListener != null) {
 			mListener.onFragmentInteraction(uri);
@@ -91,5 +107,15 @@ public class FragmentNearby extends Fragment {
 	public void onDetach() {
 		super.onDetach();
 		mListener = null;
+	}
+
+	@Override
+	public void BroadcastingEndEventOccurred(BroadcastingEndEvent evt) {
+		((CheckBox) getView().findViewById(R.id.checkBox1)).setChecked(false);
+	}
+
+	@Override
+	public void ClientFoundEventOccurred(ClientFoundEvent evt) {
+		clientsFound.add((String) evt.getSource());
 	}
 }

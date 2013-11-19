@@ -1,7 +1,5 @@
 package com.cesarandres.gnaw;
 
-import javax.sql.DataSource;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,7 +18,7 @@ import com.gnaw.request.Request;
 public class MainActivity extends FragmentActivity implements
 		OnFragmentInteractionListener, DataSourceInterface {
 
-	private GnawApplication application;
+	public static GnawApplication application;
 	private SharedFile sharedFiles = new SharedFile();
 
 	private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -46,8 +44,8 @@ public class MainActivity extends FragmentActivity implements
 
 		}
 
-		this.application = new GnawApplication(null);
-		this.application.init();
+		this.application = new GnawApplication(this);
+		//this.application.init();
 	}
 
 	@Override

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="client_actions">
+        <item >Send File</item>
+        <item >Get Profile</item>
+        <item >View Folder</item>
+    </string-array>
+    
+</resources>
